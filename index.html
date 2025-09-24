@@ -22,16 +22,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3631343466573925"
      crossorigin="anonymous"></script>
     <style>
-        .hidden { display: none; }
-        .puja-card, .stat-card { transition: all 0.3s; cursor: pointer; }
-        .puja-card:hover, .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .fade-in { animation: fadeIn 0.5s; }
-        .hero-section { 
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('https://images.unsplash.com/photo-1581578731540-c6b0fb7bd4f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-            background-size: cover; 
-            background-position: center; 
-        }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .admin-card { border-left: 4px solid #3b82f6; }
@@ -43,33 +34,47 @@
         
         .loading { opacity: 0.6; pointer-events: none; }
         .banner-slider-container {
-        width: 400px;
-        height: 250px;
-        overflow: hidden;
-        position: relative;
-        border-radius: px;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-        }
-        
-        .banner-slider {
-        display: flex;
-        width: calc(800px * 3); /* 3 images */
-        animation: slide 12s infinite;
-        }
-        
-        .banner-slider img {
-        width: 400px;
-        height: 250px;
-        object-fit: fit;
-        flex-shrink: 0;
-        }
-        
-        @keyframes slide {
-        0%, 25%   { transform: translateX(0); }
-        35%, 60%  { transform: translateX(-400px); }
-        70%, 95%  { transform: translateX(-800px); }
-        100%      { transform: translateX(0); }
-        }
+    width: 100%;
+    max-width: 400px;
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    margin: 0 auto;
+}
+
+.banner-slider {
+    display: flex;
+    width: calc(400px * 3); /* 3 images */
+    animation: slide 12s infinite;
+}
+
+.banner-slider img {
+    width: 400px;
+    height: 250px;
+    object-fit: cover; /* fit से cover में बदलें */
+    flex-shrink: 0;
+}
+
+@keyframes slide {
+    0%, 25%   { transform: translateX(0); }
+    35%, 60%  { transform: translateX(-400px); }
+    70%, 95%  { transform: translateX(-800px); }
+    100%      { transform: translateX(0); }
+}
+
+/* Ad container styling */
+.ad-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.ad-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
     </style>
 </head>
 <body class="hindlish bg-gray-100 min-h-screen">
@@ -116,7 +121,7 @@
                 <script>
                     (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
-            </div>
+            </div></div></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <!-- Stats Summary -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
