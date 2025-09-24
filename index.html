@@ -47,7 +47,7 @@
 
 .banner-slider {
     display: flex;
-    width: calc(400px * 3); /* 3 images */
+    width: calc(400px * 4); /* 4 images */
     animation: slide 12s infinite;
 }
 
@@ -60,8 +60,9 @@
 
 @keyframes slide {
     0%, 25%   { transform: translateX(0); }
-    35%, 60%  { transform: translateX(-400px); }
-    70%, 95%  { transform: translateX(-800px); }
+    35%, 50%  { transform: translateX(-400px); }
+    60%, 75%  { transform: translateX(-800px); }
+    80%, 95%   { transform: translateX(-1600); }
     100%      { transform: translateX(0); }
 }
 
@@ -91,9 +92,10 @@
         <div class="hero-section flex justify-center items-center py-10">
         <div class="banner-slider-container">
         <div class="banner-slider" id="bannerSlider">
-        <img src="banner3.png" alt="Banner 1">
+        <img src="banner5.png" alt="Banner 1">
         <img src="banner2.png" alt="Banner 2">
-        <img src="banner.png" alt="Banner 3">
+        <img src="banner3.png" alt="Banner 3">
+        <img src="banner4.png" alt="Banner 3">
         </div>
         </div>
         </div>
