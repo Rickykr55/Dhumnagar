@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin & Win - Lucky Draw</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .ad-banner {
+            width: 728px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .wheel-container {
+            position: relative;
+            margin: 30px auto;
+            width: 300px;
+            height: 300px;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 14px;
+        }
+
+        .segment:nth-child(1) { background: #ff6b6b; transform: rotate(0deg); }
+        .segment:nth-child(2) { background: #4ecdc4; transform: rotate(45deg); }
+        .segment:nth-child(3) { background: #45b7d1; transform: rotate(90deg); }
+        .segment:nth-child(4) { background: #96ceb4; transform: rotate(135deg); }
+        .segment:nth-child(5) { background: #feca57; transform: rotate(180deg); }
+        .segment:nth-child(6) { background: #ff9ff3; transform: rotate(225deg); }
+        .segment:nth-child(7) { background: #54a0ff; transform: rotate(270deg); }
+        .segment:nth-child(8) { background: #5f27cd; transform: rotate(315deg); }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #fff;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .spin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+        }
+
+        .spin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .ad-video {
+            width: 100%;
+            max-width: 350px;
+            height: 200px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .result-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .winner-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #feca57;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .prize-text {
+            font-size: 1.5rem;
+            margin: 15px 0;
+        }
+
+        .spin-count {
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .ad-banner {
+                width: 320px;
+                height: 50px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Banner Ad -->
+    <div class="ad-container">
+        <div class="ad-banner" id="topBannerAd">
+            Loading Ad...
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 class="title">🎰 Spin & Win 🎰</h1>
+        
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+            </div>
+        </div>
+
+        <button class="spin-btn" id="spinBtn" onclick="showPreSpinAd()">
+            🎯 SPIN KARO!
+        </button>
+
+        <div class="spin-count">
+            Spin Count: <span id="spinCount">0</span>
+        </div>
+    </div>
+
+    <!-- Bottom Banner Ad -->
+    <div class="ad-container">
+        <div class="ad-banner" id="bottomBannerAd">
+            Loading Ad...
+        </div>
+    </div>
+
+    <!-- Opening Ad Modal -->
+    <div class="modal" id="openingAdModal">
+        <div class="modal-content">
+            <h2>🎬 Sponsored Video</h2>
+            <video class="ad-video" id="openingVideo" controls>
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                Aapka browser video support nahi karta
+            </video>
+            <p>Video pura dekhiye ads skip nahi kar sakte!</p>
+            <button class="close-btn" id="openingAdClose" onclick="closeOpeningAd()" disabled>
+                ⏳ Wait... (<span id="openingTimer">30</span>s)
+            </button>
+        </div>
+    </div>
+
+    <!-- Pre-Spin Ad Modal -->
+    <div class="modal" id="preSpinAdModal">
+        <div class="modal-content">
+            <h2>🎬 Spin se pehle ye ad dekhiye</h2>
+            <video class="ad-video" id="preSpinVideo" controls>
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+                Aapka browser video support nahi karta
+            </video>
+            <p>Ad pura hone ka wait kariye!</p>
+            <button class="close-btn" id="preSpinAdClose" onclick="closePreSpinAd()" disabled>
+                ⏳ Loading... (<span id="preSpinTimer">30</span>s)
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content result-modal">
+            <div id="resultContent"></div>
+            <button class="close-btn" onclick="closeResult()">Phir Se Khelo! 🎮</button>
+        </div>
+    </div>
+
+    <script>
+        let spinCount = 0;
+        let isSpinning = false;
+        let winningSpins = [];
+        let popunderShown = false;
+
+        // Adsterra ad scripts
+        function loadAdsterraAds() {
+            // Top banner ad
+            var topBannerScript = document.createElement('script');
+            topBannerScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-123456789'; // Replace with actual Adsterra code
+            document.head.appendChild(topBannerScript);
+            
+            // Bottom banner ad
+            var bottomBannerScript = document.createElement('script');
+            bottomBannerScript.innerHTML = `
+                atOptions = {
+                    'key' : 'YOUR_BANNER_AD_KEY', // Replace with your Adsterra banner ad key
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformancedformats.com/YOUR_BANNER_AD_KEY/invoke.js"></scr' + 'ipt>');
+            `;
+            document.getElementById('bottomBannerAd').appendChild(bottomBannerScript);
+            
+            // Popunder ad (will be triggered after a few spins)
+            var popunderScript = document.createElement('script');
+            popunderScript.innerHTML = `
+                var popunder = document.createElement('script');
+                popunder.type = 'text/javascript';
+                popunder.src = '//www.highperformancedformats.com/YOUR_POPUNDER_AD_KEY/invoke.js'; // Replace with your Adsterra popunder ad key
+                document.body.appendChild(popunder);
+            `;
+            document.body.appendChild(popunderScript);
+        }
+
+        // Generate random winning spins between 10-20
+        function generateWinningSpins() {
+            winningSpins = [];
+            let numWins = Math.floor(Math.random() * 11) + 10; // 10 to 20 wins
+            let totalSpins = Math.floor(Math.random() * 30) + 50; // Total spins 50-80
+            
+            for(let i = 0; i < numWins; i++) {
+                let winSpin;
+                do {
+                    winSpin = Math.floor(Math.random() * totalSpins) + 1;
+                } while(winningSpins.includes(winSpin));
+                winningSpins.push(winSpin);
+            }
+            winningSpins.sort((a, b) => a - b);
+        }
+
+        // Show opening ad when page loads
+        window.onload = function() {
+            generateWinningSpins();
+            loadAdsterraAds();
+            showOpeningAd();
+        }
+
+        function showOpeningAd() {
+            document.getElementById('openingAdModal').style.display = 'flex';
+            let timer = 30;
+            let countdown = setInterval(() => {
+                timer--;
+                document.getElementById('openingTimer').textContent = timer;
+                if(timer <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById('openingAdClose').disabled = false;
+                    document.getElementById('openingAdClose').innerHTML = '✅ Continue Karo';
+                }
+            }, 1000);
+        }
+
+        function closeOpeningAd() {
+            document.getElementById('openingAdModal').style.display = 'none';
+        }
+
+        function showPreSpinAd() {
+            if(isSpinning) return;
+            
+            document.getElementById('preSpinAdModal').style.display = 'flex';
+            let timer = 30;
+            let countdown = setInterval(() => {
+                timer--;
+                document.getElementById('preSpinTimer').textContent = timer;
+                if(timer <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById('preSpinAdClose').disabled = false;
+                    document.getElementById('preSpinAdClose').innerHTML = '🎯 Ab Spin Karo!';
+                }
+            }, 1000);
+        }
+
+        function closePreSpinAd() {
+            document.getElementById('preSpinAdModal').style.display = 'none';
+            startSpin();
+        }
+
+        function startSpin() {
+            if(isSpinning) return;
+            
+            isSpinning = true;
+            spinCount++;
+            document.getElementById('spinCount').textContent = spinCount;
+            document.getElementById('spinBtn').disabled = true;
+            
+            // Show popunder ad after 3 spins
+            if (spinCount === 3 && !popunderShown) {
+                try {
+                    // Trigger popunder ad
+                    if(typeof window.popunderTrigger === 'function') {
+                        window.popunderTrigger();
+                    }
+                    popunderShown = true;
+                } catch(e) {
+                    console.log('Popunder ad not available');
+                }
+            }
+            
+            const wheel = document.getElementById('wheel');
+            const segments = ['💰 Cash Prize', '🎁 Gift Hamper', '📱 Smartphone', '💎 Diamond Ring', '🏆 Gold Trophy', '🎮 Gaming Console', '💳 Shopping Voucher', '🎪 Bonus Points'];
+            
+            // Check if this is a winning spin
+            let isWinner = winningSpins.includes(spinCount);
+            let targetSegment = isWinner ? Math.floor(Math.random() * 8) : Math.floor(Math.random() * 8);
+            
+            // Calculate rotation
+            let baseRotation = 360 * 5; // 5 full rotations
+            let segmentAngle = 360 / 8;
+            let targetAngle = (8 - targetSegment) * segmentAngle - (segmentAngle / 2);
+            let finalRotation = baseRotation + targetAngle + Math.random() * 20 - 10;
+            
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            
+            setTimeout(() => {
+                showResult(segments[targetSegment], isWinner);
+                isSpinning = false;
+                document.getElementById('spinBtn').disabled = false;
+            }, 3000);
+        }
+
+        function showResult(prize, isWinner) {
+            const resultContent = document.getElementById('resultContent');
+            
+            if(isWinner) {
+                resultContent.innerHTML = `
+                    <div class="winner-text">🎉 Badhai ho aap jit gya! 🎉</div>
+                    <div class="prize-text">🏆 ${prize} 🏆</div>
+                    <p>Congratulations! Aapne ye amazing prize jeeta hai!</p>
+                    <div style="font-size: 3rem; margin: 20px 0;">🥳🎊🎈</div>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <div style="font-size: 2rem; margin: 20px 0;">😔</div>
+                    <div class="prize-text">Better Luck Next Time!</div>
+                    <p>Koi baat nahi, phir se try karo!</p>
+                    <div style="font-size: 2rem; margin: 20px 0;">🍀</div>
+                `;
+            }
+            
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function closeResult() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // Prevent form submission navigation
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9857c77872a27a1c',t:'MTc1ODk0MjMyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
