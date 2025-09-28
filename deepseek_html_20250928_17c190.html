@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin & Win - Lucky Draw</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .wheel-container {
+            position: relative;
+            margin: 30px auto;
+            width: 300px;
+            height: 300px;
+        }
+
+        .wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 14px;
+        }
+
+        .segment:nth-child(1) { background: #ff6b6b; transform: rotate(0deg); }
+        .segment:nth-child(2) { background: #4ecdc4; transform: rotate(45deg); }
+        .segment:nth-child(3) { background: #45b7d1; transform: rotate(90deg); }
+        .segment:nth-child(4) { background: #96ceb4; transform: rotate(135deg); }
+        .segment:nth-child(5) { background: #feca57; transform: rotate(180deg); }
+        .segment:nth-child(6) { background: #ff9ff3; transform: rotate(225deg); }
+        .segment:nth-child(7) { background: #54a0ff; transform: rotate(270deg); }
+        .segment:nth-child(8) { background: #5f27cd; transform: rotate(315deg); }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #fff;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .spin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+        }
+
+        .spin-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            width: 95%;
+            height: 95vh;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ad-container {
+            width: 100%;
+            height: 80vh;
+            background: #f5f5f5;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            border: 2px dashed #ccc;
+            overflow: hidden;
+        }
+
+        .ad-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .ad-placeholder {
+            color: #666;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .close-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .close-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            max-width: 400px;
+            height: auto;
+        }
+
+        .winner-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #feca57;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .prize-text {
+            font-size: 1.5rem;
+            margin: 15px 0;
+        }
+
+        .spin-count {
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .global-stats {
+            color: white;
+            font-size: 1rem;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 15px;
+        }
+
+        .timer-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                padding: 15px;
+                height: 92vh;
+            }
+            
+            .ad-container {
+                height: 75vh;
+            }
+            
+            .ad-placeholder {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🎰 Spin & Win 🎰</h1>
+        
+        <!-- Global Statistics -->
+        <div class="global-stats">
+            🌍 Global Spins: <span id="globalSpinCount">0</span> | 
+            🏆 Next Winner at: <span id="nextWinnerAt">100</span>
+        </div>
+        
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+                <div class="segment"></div>
+            </div>
+        </div>
+
+        <button class="spin-btn" id="spinBtn">
+            🎯 SPIN KARO!
+        </button>
+
+        <div class="spin-count">
+            Aapke Spins: <span id="userSpinCount">0</span>
+        </div>
+    </div>
+
+    <!-- Opening Ad Modal -->
+    <div class="modal" id="openingAdModal">
+        <div class="modal-content">
+            <h2>📢 Welcome Advertisement</h2>
+            <div class="timer-display">⏳ Please wait: <span id="openingTimer">10</span> seconds</div>
+            <div class="ad-container" id="openingAd">
+                <div class="ad-placeholder">
+                    🔥 Ad Loading...<br>
+                    <small>Please watch the full ad to continue</small>
+                </div>
+            </div>
+            <button class="close-btn" id="openingAdClose" disabled>
+                ✅ Continue Karo (<span id="openingBtnTimer">10</span>s)
+            </button>
+        </div>
+    </div>
+
+    <!-- Pre-Spin Ad Modal -->
+    <div class="modal" id="preSpinAdModal">
+        <div class="modal-content">
+            <h2>📢 Spin ke liye Advertisement</h2>
+            <div class="timer-display">⏳ Please wait: <span id="preSpinTimer">10</span> seconds</div>
+            <div class="ad-container" id="preSpinAd">
+                <div class="ad-placeholder">
+                    🔥 Ad Loading...<br>
+                    <small>Please watch the full ad to spin</small>
+                </div>
+            </div>
+            <button class="close-btn" id="preSpinAdClose" disabled>
+                🎯 Spin Karo (<span id="preSpinBtnTimer">10</span>s)
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content result-modal">
+            <div id="resultContent"></div>
+            <button class="close-btn" onclick="closeResult()">Phir Se Khelo! 🎮</button>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let userSpinCount = 0;
+        let globalSpinCount = 0;
+        let nextWinnerAt = 100;
+        let isSpinning = false;
+        let currentWinnerSpin = null;
+        let adTimer = 10; // 10 seconds ads
+
+        // Direct Iframe URL for Adsterra Banner
+        const ADSTERRA_IFRAME_URL = "https://www.highperformancedformats.com/606b148cf8b5563f4e3787b089fc7702/invoke.html";
+
+        // Initialize when page loads
+        window.onload = function() {
+            // Load saved data from localStorage
+            loadSavedData();
+            
+            // Show opening ad immediately
+            showOpeningAd();
+            
+            // Setup spin button event
+            document.getElementById('spinBtn').addEventListener('click', showPreSpinAd);
+        }
+
+        // Load data from localStorage
+        function loadSavedData() {
+            const savedGlobal = localStorage.getItem('globalSpinCount');
+            const savedWinner = localStorage.getItem('nextWinnerAt');
+            const savedCurrentWinner = localStorage.getItem('currentWinnerSpin');
+            
+            globalSpinCount = savedGlobal ? parseInt(savedGlobal) : 0;
+            nextWinnerAt = savedWinner ? parseInt(savedWinner) : 100;
+            currentWinnerSpin = savedCurrentWinner ? parseInt(savedCurrentWinner) : null;
+            
+            updateDisplay();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('globalSpinCount', globalSpinCount);
+            localStorage.setItem('nextWinnerAt', nextWinnerAt);
+            if(currentWinnerSpin) {
+                localStorage.setItem('currentWinnerSpin', currentWinnerSpin);
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('globalSpinCount').textContent = globalSpinCount;
+            document.getElementById('nextWinnerAt').textContent = nextWinnerAt;
+            document.getElementById('userSpinCount').textContent = userSpinCount;
+        }
+
+        // Show opening ad (FULL SCREEN)
+        function showOpeningAd() {
+            document.getElementById('openingAdModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Load ad using iframe
+            setTimeout(() => {
+                document.getElementById('openingAd').innerHTML = `
+                    <iframe src="${ADSTERRA_IFRAME_URL}" class="ad-iframe" 
+                            scrolling="no" frameborder="0"></iframe>
+                `;
+            }, 500);
+            
+            let timer = adTimer;
+            let countdown = setInterval(() => {
+                timer--;
+                document.getElementById('openingTimer').textContent = timer;
+                document.getElementById('openingBtnTimer').textContent = timer;
+                
+                if(timer <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById('openingAdClose').disabled = false;
+                    document.getElementById('openingAdClose').textContent = '✅ Game Start Karein';
+                    
+                    // AUTOMATIC CLOSE
+                    setTimeout(() => {
+                        closeOpeningAd();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function closeOpeningAd() {
+            document.getElementById('openingAdModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            triggerPopunder();
+        }
+
+        // Show pre-spin ad (FULL SCREEN)
+        function showPreSpinAd() {
+            if(isSpinning) return;
+            
+            document.getElementById('preSpinAdModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Load ad using iframe
+            setTimeout(() => {
+                document.getElementById('preSpinAd').innerHTML = `
+                    <iframe src="${ADSTERRA_IFRAME_URL}" class="ad-iframe" 
+                            scrolling="no" frameborder="0"></iframe>
+                `;
+            }, 500);
+            
+            let timer = adTimer;
+            let countdown = setInterval(() => {
+                timer--;
+                document.getElementById('preSpinTimer').textContent = timer;
+                document.getElementById('preSpinBtnTimer').textContent = timer;
+                
+                if(timer <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById('preSpinAdClose').disabled = false;
+                    document.getElementById('preSpinAdClose').textContent = '🎯 Ab Spin Karo!';
+                    
+                    // AUTOMATIC CLOSE
+                    setTimeout(() => {
+                        closePreSpinAd();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function closePreSpinAd() {
+            document.getElementById('preSpinAdModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            startSpin();
+        }
+
+        // Start spin process
+        function startSpin() {
+            if(isSpinning) return;
+            
+            isSpinning = true;
+            userSpinCount++;
+            globalSpinCount++;
+            
+            const isWinner = checkIfWinner();
+            updateDisplay();
+            saveData();
+            animateWheel(isWinner);
+            triggerPopunder();
+        }
+
+        // Check if current spin is a winner
+        function checkIfWinner() {
+            if(globalSpinCount === nextWinnerAt) {
+                currentWinnerSpin = globalSpinCount;
+                nextWinnerAt += 100;
+                return true;
+            }
+            return false;
+        }
+
+        // Animate wheel
+        function animateWheel(isWinner) {
+            const wheel = document.getElementById('wheel');
+            const segments = ['💰 Cash Prize', '🎁 Gift Hamper', '📱 Smartphone', '💎 Diamond Ring', '🏆 Gold Trophy', '🎮 Gaming Console', '💳 Shopping Voucher', '🎪 Bonus Points'];
+            
+            let targetSegment = isWinner ? Math.floor(Math.random() * 8) : Math.floor(Math.random() * 8);
+            let baseRotation = 360 * 5;
+            let segmentAngle = 360 / 8;
+            let targetAngle = (8 - targetSegment) * segmentAngle - (segmentAngle / 2);
+            let finalRotation = baseRotation + targetAngle + Math.random() * 20 - 10;
+            
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            
+            setTimeout(() => {
+                showResult(segments[targetSegment], isWinner);
+                isSpinning = false;
+            }, 3000);
+        }
+
+        // Show result
+        function showResult(prize, isWinner) {
+            const resultContent = document.getElementById('resultContent');
+            
+            if(isWinner) {
+                resultContent.innerHTML = `
+                    <div class="winner-text">🎉 BADA WINNER! 🎉</div>
+                    <div class="prize-text">Global Spin #${currentWinnerSpin} par aap jeete!</div>
+                    <div class="prize-text">🏆 ${prize} 🏆</div>
+                    <p>Congratulations! Aap 100 spins ka winner hain!</p>
+                    <div style="font-size: 3rem; margin: 20px 0;">🥳🎊🎈</div>
+                    <small>Next winner at spin #${nextWinnerAt}</small>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <div style="font-size: 2rem; margin: 20px 0;">😔</div>
+                    <div class="prize-text">Better Luck Next Time!</div>
+                    <p>Global Spins: ${globalSpinCount} | Next Winner at: ${nextWinnerAt}</p>
+                    <p>Koi baat nahi, phir se try karo!</p>
+                    <div style="font-size: 2rem; margin: 20px 0;">🍀</div>
+                `;
+            }
+            
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function closeResult() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // Trigger popunder ad
+        function triggerPopunder() {
+            console.log('Popunder ad triggered');
+        }
+
+        // Prevent form submission
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+
+    <!-- Adsterra Popunder Code -->
+    <script type='text/javascript' src='//pl27737979.revenuecpmgate.com/ab/53/be/ab53be0d043dd6b372946ea0b3fd0bf8.js'></script>
+</body>
+</html>
